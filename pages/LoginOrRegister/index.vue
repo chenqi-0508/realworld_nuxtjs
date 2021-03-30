@@ -51,7 +51,9 @@
 </template>
 
 <script>
-import request from '@/utils/request'
+import user from "@/api/user";
+const Cookie = process.client ? require("js-cookie") : undefined;
+
 export default {
   name: "LoginOrRegister",
   data() {
@@ -71,32 +73,26 @@ export default {
      * 登录
      */
     async submitHandle() {
-      let url = '/api/users/login'
       let params = {
-        email: this.email,
-        password: this.password,
-      }
-      // 注册页面
-      if(!this.isLogin) {
-        params.username = this.username
-        url = '/api/users'
-      }
-      const { status, data } = await request({
-        method: 'POST',
-        url: url, 
-        data: {
-          user: params
+        user: {
+          username: this.username,
+          email: this.email,
+          password: this.password,
         }
-      })
+      };
+
+      const { status, data } = this.isLogin ? await user.login(params) : await user.register(params)
+
       // 登录或注册成功 跳转首页
-      if(status === 200 && data) {
-        console.log('success')
-        window.localStorage.setItem('userid', data.user.id)
-        window.localStorage.setItem('username', data.user.username)
-        window.localStorage.setItem('token', data.user.token)
+      if (status === 200 && data) {
+        // 将用户信息存入vuex
+        this.$store.commit("SET_USER", data.user);
+        // 将用户信息持久化
+        Cookie.set("user", data.user);
+        // 进入首页
         this.$router.push({
-          name: 'Home'
-        })
+          name: "Home",
+        });
       }
     },
   },
