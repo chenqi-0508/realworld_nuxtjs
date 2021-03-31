@@ -22,14 +22,16 @@
                 v-model="username"
                 type="text"
                 placeholder="Your Name"
+                required
               />
             </fieldset>
             <fieldset class="form-group">
               <input
                 class="form-control form-control-lg"
                 v-model="email"
-                type="text"
+                type="email"
                 placeholder="Email"
+                required
               />
             </fieldset>
             <fieldset class="form-group">
@@ -38,6 +40,8 @@
                 v-model="password"
                 type="password"
                 placeholder="Password"
+                required
+                minlength="8"
               />
             </fieldset>
             <button class="btn btn-lg btn-primary pull-xs-right">
@@ -56,6 +60,7 @@ const Cookie = process.client ? require("js-cookie") : undefined;
 
 export default {
   name: "LoginOrRegister",
+  middleware: 'not-auth',
   data() {
     return {
       username: "",

@@ -56,6 +56,7 @@
 <script>
 export default {
   name: "Settings",
+  middleware: ['auth'],
   data() {
     return {};
   },

@@ -130,6 +130,7 @@
 <script>
 export default {
   name: "Article",
+  middleware: ['auth'],
   data() {
     return {};
   },

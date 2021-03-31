@@ -51,6 +51,7 @@
 <script>
 export default {
   name: "CreateOrEditArticle",
+  middleware: ['auth'],
   data() {
     return {};
   },
