@@ -21,45 +21,24 @@
             </ul>
           </div>
 
-          <div class="article-preview">
+          <div
+            class="article-preview"
+            v-for="item in articles"
+            :key="item.slug"
+          >
             <div class="article-meta">
-              <a href="profile.html"
-                ><img src="http://i.imgur.com/Qr71crq.jpg"
-              /></a>
+              <a href="profile.html"><img :src="item.author.image" /></a>
               <div class="info">
-                <a href="" class="author">Eric Simons</a>
-                <span class="date">January 20th</span>
+                <a href="" class="author">{{ item.author.username }}</a>
+                <span class="date">{{ item.createdAt }}</span>
               </div>
               <button class="btn btn-outline-primary btn-sm pull-xs-right">
-                <i class="ion-heart"></i> 29
+                <i class="ion-heart"></i> {{ item.favoritesCount }}
               </button>
             </div>
             <a href="" class="preview-link">
-              <h1>How to build webapps that scale</h1>
-              <p>This is the description for the post.</p>
-              <span>Read more...</span>
-            </a>
-          </div>
-
-          <div class="article-preview">
-            <div class="article-meta">
-              <a href="profile.html"
-                ><img src="http://i.imgur.com/N4VcUeJ.jpg"
-              /></a>
-              <div class="info">
-                <a href="" class="author">Albert Pai</a>
-                <span class="date">January 20th</span>
-              </div>
-              <button class="btn btn-outline-primary btn-sm pull-xs-right">
-                <i class="ion-heart"></i> 32
-              </button>
-            </div>
-            <a href="" class="preview-link">
-              <h1>
-                The song you won't ever stop singing. No matter how hard you
-                try.
-              </h1>
-              <p>This is the description for the post.</p>
+              <h1>{{ item.title }}</h1>
+              <p>{{ item.body }}</p>
               <span>Read more...</span>
             </a>
           </div>
@@ -68,32 +47,80 @@
         <div class="col-md-3">
           <div class="sidebar">
             <p>Popular Tags</p>
-
             <div class="tag-list">
-              <a href="" class="tag-pill tag-default">programming</a>
-              <a href="" class="tag-pill tag-default">javascript</a>
-              <a href="" class="tag-pill tag-default">emberjs</a>
-              <a href="" class="tag-pill tag-default">angularjs</a>
-              <a href="" class="tag-pill tag-default">react</a>
-              <a href="" class="tag-pill tag-default">mean</a>
-              <a href="" class="tag-pill tag-default">node</a>
-              <a href="" class="tag-pill tag-default">rails</a>
+              <a
+                href=""
+                v-for="(item, index) in tags"
+                :key="index"
+                class="tag-pill tag-default"
+                >{{ item }}</a
+              >
             </div>
           </div>
         </div>
+
+        <nav>
+          <ul class="pagination">
+            <li
+              class="page-item"
+              v-for="item in totalPage"
+              :key="item"
+            >
+              <nuxt-link
+                class="page-link"
+                :class="{active: item == page}"
+                :to="{
+                name: 'Home',
+                query: {
+                  page: item
+                }
+              }">{{ item }}</nuxt-link>
+            </li>
+          </ul>
+        </nav>
       </div>
     </div>
   </div>
 </template>
 
 <script>
+import article from "@/api/article.js";
+import tag from "@/api/tag.js";
+
 export default {
   name: "Home",
+  async asyncData({ query }) {
+    const limit = 10; // 每页条数
+    const page = Number.parseInt(query.page || 1) // 页数
+    // 获取文章列表、标签列表
+    const [{ data: articleData }, { data: tagsData }] = await Promise.all([
+      article.articlesList({
+        limit,
+        offset: (page - 1) * limit,
+      }),
+      tag.getTags(),
+    ]);
+
+    return {
+      articles: articleData.articles,
+      articlesCount: articleData.articlesCount,
+      tags: tagsData.tags,
+      limit,
+      page
+    };
+  },
   data() {
     return {};
   },
+  computed: {
+    // 获取总页数
+    totalPage() {
+      return Math.ceil(this.articlesCount / this.limit)
+    }
+  },
   methods: {},
-  components: {},
+  components: {
+  },
 };
 </script>
 
