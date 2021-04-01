@@ -10,8 +10,7 @@ module.exports = {
                 name: 'Layout',
                 path: '/',
                 component: resolve(__dirname, 'pages/Layout/index.vue'),
-                children: [
-                    {
+                children: [{
                         name: 'Home',
                         path: '',
                         component: resolve(__dirname, 'pages/Home')
@@ -49,5 +48,9 @@ module.exports = {
                 ]
             })
         }
-    }
+    },
+    // 注册插件
+    plugins: [
+        '~/plugins/request.js'
+    ]
 }

@@ -12,11 +12,33 @@
         <div class="col-md-9">
           <div class="feed-toggle">
             <ul class="nav nav-pills outline-active">
-              <li class="nav-item">
-                <a class="nav-link disabled" href="">Your Feed</a>
+              <li class="nav-item" v-if="user">
+                <nuxt-link
+                  class="nav-link"
+                  :class="{ active: tab == 'Your_Feed' }"
+                  :to="{
+                    name: 'Home',
+                    query: {
+                      tab: 'Your_Feed',
+                    },
+                  }"
+                >
+                  Your Feed
+                </nuxt-link>
               </li>
               <li class="nav-item">
-                <a class="nav-link active" href="">Global Feed</a>
+                <nuxt-link
+                  class="nav-link"
+                  :class="{ active: tab == 'Global_Feed' }"
+                  :to="{
+                    name: 'Home',
+                    query: {
+                      tab: 'Global_Feed',
+                    },
+                  }"
+                >
+                  Global Feed
+                </nuxt-link>
               </li>
             </ul>
           </div>
@@ -36,11 +58,19 @@
                 <i class="ion-heart"></i> {{ item.favoritesCount }}
               </button>
             </div>
-            <a href="" class="preview-link">
+            <nuxt-link
+              class="preview-link"
+              :to="{
+                name: 'Article',
+                query: {
+                  slug: item.slug,
+                },
+              }"
+            >
               <h1>{{ item.title }}</h1>
               <p>{{ item.body }}</p>
               <span>Read more...</span>
-            </a>
+            </nuxt-link>
           </div>
         </div>
 
@@ -48,12 +78,18 @@
           <div class="sidebar">
             <p>Popular Tags</p>
             <div class="tag-list">
-              <a
-                href=""
+              <nuxt-link
+                :to="{
+                  name: 'Home',
+                  query: {
+                    page: 1,
+                    tag: item,
+                  },
+                }"
                 v-for="(item, index) in tags"
                 :key="index"
                 class="tag-pill tag-default"
-                >{{ item }}</a
+                >{{ item }}</nuxt-link
               >
             </div>
           </div>
@@ -63,18 +99,23 @@
           <ul class="pagination">
             <li
               class="page-item"
+              :class="{
+                active: item === page,
+              }"
               v-for="item in totalPage"
               :key="item"
             >
               <nuxt-link
                 class="page-link"
-                :class="{active: item == page}"
                 :to="{
-                name: 'Home',
-                query: {
-                  page: item
-                }
-              }">{{ item }}</nuxt-link>
+                  name: 'Home',
+                  query: {
+                    page: item,
+                    tag: $route.query.tag,
+                  },
+                }"
+                >{{ item }}</nuxt-link
+              >
             </li>
           </ul>
         </nav>
@@ -86,17 +127,25 @@
 <script>
 import article from "@/api/article.js";
 import tag from "@/api/tag.js";
+import { mapState } from "vuex";
 
 export default {
   name: "Home",
+  watchQuery: ["page", "tag", "tab"],
   async asyncData({ query }) {
     const limit = 10; // 每页条数
-    const page = Number.parseInt(query.page || 1) // 页数
+    const page = Number.parseInt(query.page || 1); // 页数
+    const tab = query.tab || "Global_Feed";
+
+    // 根据tab决定查询全部文章还是我喜欢的文章
+    const loadArticle =
+      tab == "Global_Feed" ? article.articlesList : article.feedArticle;
     // 获取文章列表、标签列表
     const [{ data: articleData }, { data: tagsData }] = await Promise.all([
-      article.articlesList({
+      loadArticle({
         limit,
         offset: (page - 1) * limit,
+        tag: query.tag,
       }),
       tag.getTags(),
     ]);
@@ -106,7 +155,8 @@ export default {
       articlesCount: articleData.articlesCount,
       tags: tagsData.tags,
       limit,
-      page
+      page,
+      tab,
     };
   },
   data() {
@@ -115,12 +165,12 @@ export default {
   computed: {
     // 获取总页数
     totalPage() {
-      return Math.ceil(this.articlesCount / this.limit)
-    }
+      return Math.ceil(this.articlesCount / this.limit);
+    },
+    ...mapState(["user"]),
   },
   methods: {},
-  components: {
-  },
+  components: {},
 };
 </script>
 
