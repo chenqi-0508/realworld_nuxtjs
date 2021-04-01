@@ -40,6 +40,20 @@
                   Global Feed
                 </nuxt-link>
               </li>
+              <li class="nav-item">
+                <nuxt-link
+                  class="nav-link"
+                  :class="{ active: tab == 'tab' }"
+                  :to="{
+                    name: 'Home',
+                    query: {
+                      tab: 'tab',
+                    },
+                  }"
+                >
+                  # {{ tag }}
+                </nuxt-link>
+              </li>
             </ul>
           </div>
 
@@ -84,6 +98,7 @@
                   query: {
                     page: 1,
                     tag: item,
+                    tab: 'tab'
                   },
                 }"
                 v-for="(item, index) in tags"
@@ -94,7 +109,7 @@
             </div>
           </div>
         </div>
-
+        <!-- 分页 -->
         <nav>
           <ul class="pagination">
             <li
@@ -119,6 +134,7 @@
             </li>
           </ul>
         </nav>
+        <!-- /分页 -->
       </div>
     </div>
   </div>
