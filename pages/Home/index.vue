@@ -40,7 +40,7 @@
                   Global Feed
                 </nuxt-link>
               </li>
-              <li class="nav-item">
+              <li class="nav-item" v-if="tag">
                 <nuxt-link
                   class="nav-link"
                   :class="{ active: tab == 'tab' }"
@@ -66,9 +66,18 @@
               <a href="profile.html"><img :src="item.author.image" /></a>
               <div class="info">
                 <a href="" class="author">{{ item.author.username }}</a>
-                <span class="date">{{ item.createdAt }}</span>
+                <span class="date">{{
+                  item.createdAt | date("MMM DD,YYYY")
+                }}</span>
               </div>
-              <button class="btn btn-outline-primary btn-sm pull-xs-right">
+              <button
+                class="btn btn-outline-primary btn-sm pull-xs-right"
+                :class="{
+                  active: item.favorited,
+                }"
+                @click="favoriteHandle(item)"
+                :disabled="item.favoriteDisabled"
+              >
                 <i class="ion-heart"></i> {{ item.favoritesCount }}
               </button>
             </div>
@@ -98,7 +107,7 @@
                   query: {
                     page: 1,
                     tag: item,
-                    tab: 'tab'
+                    tab: 'tab',
                   },
                 }"
                 v-for="(item, index) in tags"
@@ -141,8 +150,8 @@
 </template>
 
 <script>
-import article from "@/api/article.js";
-import tag from "@/api/tag.js";
+import articleApi from "@/api/article.js";
+import tagApi from "@/api/tag.js";
 import { mapState } from "vuex";
 
 export default {
@@ -152,27 +161,33 @@ export default {
     const limit = 10; // 每页条数
     const page = Number.parseInt(query.page || 1); // 页数
     const tab = query.tab || "Global_Feed";
+    const tag = query.tag;
 
     // 根据tab决定查询全部文章还是我喜欢的文章
     const loadArticle =
-      tab == "Global_Feed" ? article.articlesList : article.feedArticle;
+      tab == "Your_Feed" ? articleApi.feedArticle : articleApi.articlesList;
     // 获取文章列表、标签列表
     const [{ data: articleData }, { data: tagsData }] = await Promise.all([
       loadArticle({
         limit,
         offset: (page - 1) * limit,
-        tag: query.tag,
+        tag,
       }),
-      tag.getTags(),
+      tagApi.getTags(),
     ]);
 
+    const { articles, articlesCount } = articleData;
+
+    articles.forEach((item) => (item.favoriteDisabled = false));
+
     return {
-      articles: articleData.articles,
-      articlesCount: articleData.articlesCount,
-      tags: tagsData.tags,
+      articles, // 文章列表
+      articlesCount, // 文章数量
+      tags: tagsData.tags, // 标签列表
       limit,
       page,
       tab,
+      tag,
     };
   },
   data() {
@@ -185,7 +200,25 @@ export default {
     },
     ...mapState(["user"]),
   },
-  methods: {},
+  methods: {
+    // 点赞按钮
+    async favoriteHandle(article) {
+      // 防止连续点击 加锁
+      article.favoriteDisabled = true
+      if(article.favorited) {
+        // 取消点赞
+        await articleApi.delFavoriteArticle({slug: article.slug})
+        article.favorited = false
+        article.favoritesCount--
+      }else {
+        // 点赞
+        await articleApi.favoriteArticle({slug: article.slug})
+        article.favorited = true
+        article.favoritesCount++
+      }
+      article.favoriteDisabled = false
+    },
+  },
   components: {},
 };
 </script>

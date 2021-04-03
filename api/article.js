@@ -9,7 +9,7 @@ export default {
             params
         })
     },
-    // 我喜欢的文章列表接口
+    // 关注用户的文章列表接口
     feedArticle: params => {
         return request({
             method: 'GET',
@@ -23,5 +23,19 @@ export default {
             method: 'GET',
             url: `/api/articles/${slug}`
         })
-    }
+    },
+    // 点赞文章
+    favoriteArticle: ({ slug }) => {
+        return request({
+            method: 'POST',
+            url: `/api/articles/${slug}/favorite`
+        })
+    },
+    // 删除点赞文章
+    delFavoriteArticle: ({ slug }) => {
+        return request({
+            method: 'DELETE',
+            url: `/api/articles/${slug}/favorite`
+        })
+    },
 }
