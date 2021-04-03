@@ -40,7 +40,7 @@
                   Global Feed
                 </nuxt-link>
               </li>
-              <li class="nav-item" v-if="tag">
+              <li class="nav-item" v-if="tab == 'tab'">
                 <nuxt-link
                   class="nav-link"
                   :class="{ active: tab == 'tab' }"
@@ -63,9 +63,34 @@
             :key="item.slug"
           >
             <div class="article-meta">
-              <a href="profile.html"><img :src="item.author.image" /></a>
+              <nuxt-link
+                class="author"
+                :to="{
+                  name: 'Profile',
+                  params: {
+                    username: item.author.username,
+                  },
+                  query: {
+                    username: item.author.username,
+                  },
+                }"
+              >
+                <img :src="item.author.image" />
+              </nuxt-link>
               <div class="info">
-                <a href="" class="author">{{ item.author.username }}</a>
+                <nuxt-link
+                  class="author"
+                  :to="{
+                    name: 'Profile',
+                    params: {
+                      username: item.author.username,
+                    },
+                    query: {
+                      username: item.author.username,
+                    },
+                  }"
+                  >{{ item.author.username }}
+                </nuxt-link>
                 <span class="date">{{
                   item.createdAt | date("MMM DD,YYYY")
                 }}</span>
@@ -204,19 +229,19 @@ export default {
     // 点赞按钮
     async favoriteHandle(article) {
       // 防止连续点击 加锁
-      article.favoriteDisabled = true
-      if(article.favorited) {
+      article.favoriteDisabled = true;
+      if (article.favorited) {
         // 取消点赞
-        await articleApi.delFavoriteArticle({slug: article.slug})
-        article.favorited = false
-        article.favoritesCount--
-      }else {
+        await articleApi.delFavoriteArticle({ slug: article.slug });
+        article.favorited = false;
+        article.favoritesCount--;
+      } else {
         // 点赞
-        await articleApi.favoriteArticle({slug: article.slug})
-        article.favorited = true
-        article.favoritesCount++
+        await articleApi.favoriteArticle({ slug: article.slug });
+        article.favorited = true;
+        article.favoritesCount++;
       }
-      article.favoriteDisabled = false
+      article.favoriteDisabled = false;
     },
   },
   components: {},
