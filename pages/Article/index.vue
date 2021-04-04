@@ -4,7 +4,7 @@
       <div class="container">
         <h1>{{ articleDetail.title }}</h1>
 
-        <article-meta :articleDetail="articleDetail"/>
+        <article-meta :articleDetail="articleDetail" />
       </div>
     </div>
 
@@ -22,71 +22,69 @@
       <hr />
 
       <div class="article-actions">
-        <article-meta :articleDetail="articleDetail"/>
+        <article-meta :articleDetail="articleDetail" />
       </div>
 
       <div class="row">
         <div class="col-xs-12 col-md-8 offset-md-2">
-          <form class="card comment-form">
+          <!-- 我的评论 -->
+          <form class="card comment-form" @submit.prevent="postCommentHandle">
             <div class="card-block">
               <textarea
                 class="form-control"
                 placeholder="Write a comment..."
                 rows="3"
+                v-model="myComment"
               ></textarea>
             </div>
             <div class="card-footer">
-              <img
-                src="http://i.imgur.com/Qr71crq.jpg"
-                class="comment-author-img"
-              />
+              <img :src="user.image" class="comment-author-img" />
               <button class="btn btn-sm btn-primary">Post Comment</button>
             </div>
           </form>
-
-          <div class="card">
+          <!-- /我的评论 -->
+          <!-- 所有评论 -->
+          <div class="card" v-for="comment in comments" :key="comment.id">
             <div class="card-block">
               <p class="card-text">
-                With supporting text below as a natural lead-in to additional
-                content.
+                {{ comment.body }}
               </p>
             </div>
             <div class="card-footer">
-              <a href="" class="comment-author">
-                <img
-                  src="http://i.imgur.com/Qr71crq.jpg"
-                  class="comment-author-img"
-                />
-              </a>
+              <nuxt-link
+                class="comment-author"
+                :to="{
+                  name: 'Profile',
+                  params: {
+                    username: comment.author.username,
+                  },
+                  query: {
+                    username: comment.author.username,
+                  },
+                }"
+              >
+                <img :src="comment.author.image" class="comment-author-img" />
+              </nuxt-link>
               &nbsp;
-              <a href="" class="comment-author">Jacob Schmidt</a>
-              <span class="date-posted">Dec 29th</span>
+              <nuxt-link
+                class="comment-author"
+                :to="{
+                  name: 'Profile',
+                  params: {
+                    username: comment.author.username,
+                  },
+                  query: {
+                    username: comment.author.username,
+                  },
+                }"
+                >{{ comment.author.username }}</nuxt-link
+              >
+              <span class="date-posted">{{
+                comment.createdAt | date("MMM DD, YYYY")
+              }}</span>
             </div>
           </div>
-
-          <div class="card">
-            <div class="card-block">
-              <p class="card-text">
-                With supporting text below as a natural lead-in to additional
-                content.
-              </p>
-            </div>
-            <div class="card-footer">
-              <a href="" class="comment-author">
-                <img
-                  src="http://i.imgur.com/Qr71crq.jpg"
-                  class="comment-author-img"
-                />
-              </a>
-              &nbsp;
-              <a href="" class="comment-author">Jacob Schmidt</a>
-              <span class="date-posted">Dec 29th</span>
-              <span class="mod-options">
-                <i class="ion-edit"></i>
-                <i class="ion-trash-a"></i>
-              </span>
-            </div>
-          </div>
+          <!-- /所有评论 -->
         </div>
       </div>
     </div>
@@ -95,7 +93,9 @@
 
 <script>
 import articleApi from "@/api/article.js";
-import articleMeta from './components/articleMeta'
+import commentApi from "@/api/comment.js";
+import articleMeta from "./components/articleMeta";
+import { mapState } from "vuex";
 
 export default {
   name: "Article",
@@ -112,19 +112,47 @@ export default {
     redirect,
     error,
   }) {
+    // 获取文章详情
     const { data } = await articleApi.getArticle({
       slug: query.slug,
     });
+    // 获取评论信息
+    const { data: commentsData } = await commentApi.getComments({
+      slug: query.slug,
+    });
+
     return {
       articleDetail: data.article,
+      comments: commentsData.comments,
     };
   },
   data() {
-    return {};
+    return {
+      myComment: "",
+    };
   },
-  methods: {},
+  computed: {
+    ...mapState(["user"]),
+  },
+  methods: {
+    // 提交评论
+    async postCommentHandle() {
+      if (!this.myComment) return;
+      // 添加评论
+      const { data } = await commentApi.addComment({
+        slug: this.$route.query.slug,
+        body: this.myComment,
+      });
+      // 获取评论信息
+      const { data: commentsData } = await commentApi.getComments({
+        slug: this.$route.query.slug,
+      });
+      this.comments = commentsData.comments;
+      this.myComment = "";
+    },
+  },
   components: {
-    articleMeta
+    articleMeta,
   },
 };
 </script>

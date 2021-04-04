@@ -38,4 +38,12 @@ export default {
             url: `/api/articles/${slug}/favorite`
         })
     },
+    // 创建文章
+    createArticle: artilceObj => {
+        return request({
+            method: 'POST',
+            url: `/api/articles`,
+            data: artilceObj
+        })
+    },
 }
