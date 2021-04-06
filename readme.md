@@ -1,3 +1,6 @@
+### 服务器地址
+- 106.75.122.252 3000
+
 ### 手动打包部署步骤
 1. npm run build 打包项目
 2. 将目录中的
@@ -12,4 +15,5 @@
 5. 执行npm install下载第三方依赖包（未安装nodejs 需先下载Linux的nodejs）
 6. 执行启动命令 npm run start
 7. 使用pm2启动应用
-    - 下载pm2 npm i -g pm2
+    - 下载 npm i -g pm2
+    - 启动 pm2 start npm -- start
