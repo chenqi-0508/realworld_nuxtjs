@@ -1,4 +1,6 @@
-import { request } from '@/plugins/request'
+import {
+    request
+} from '@/plugins/request'
 
 export default {
     // 文章列表接口
@@ -18,21 +20,27 @@ export default {
         })
     },
     // 获取文章详情
-    getArticle: ({ slug }) => {
+    getArticle: ({
+        slug
+    }) => {
         return request({
             method: 'GET',
             url: `/api/articles/${slug}`
         })
     },
     // 点赞文章
-    favoriteArticle: ({ slug }) => {
+    favoriteArticle: ({
+        slug
+    }) => {
         return request({
             method: 'POST',
             url: `/api/articles/${slug}/favorite`
         })
     },
     // 删除点赞文章
-    delFavoriteArticle: ({ slug }) => {
+    delFavoriteArticle: ({
+        slug
+    }) => {
         return request({
             method: 'DELETE',
             url: `/api/articles/${slug}/favorite`
