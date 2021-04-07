@@ -17,3 +17,21 @@
 7. 使用pm2启动应用
     - 下载 npm i -g pm2
     - 启动 pm2 start npm -- start
+
+### 自动化部署步骤
+1. 在github中配置access_token
+    - settings > Developer settings > Personal access tokens > Generate new token
+2. 在github创建项目仓库
+3. 配置部署脚本main.yml,步骤：
+    - 下载源码
+    - 打包构建
+    - 发布Release
+    - 上传构建结果Release
+    - 部署到服务器
+4. 在github项目仓库 settings > secrets 中配置HOST,PORT,USERNAME,PASSWORD,TOKEN
+5. 开始执行发布命令
+    - git add .
+    - git commit -m '发布部署v0.1.0'
+    - git tag v0.1.0 创建标签
+    - git tag 查看标签
+    - git push origin v0.1.0
