@@ -28,7 +28,7 @@
     - 发布Release
     - 上传构建结果Release
     - 部署到服务器
-4. 在github项目仓库 settings > secrets 中配置HOST,PORT,USERNAME,PASSWORD,TOKEN
+4. 在github项目仓库 settings > secrets 中配置HOST,PORT,USERNAME,PASSWORD,TOKEN(即access_token)
 5. 开始执行发布命令
     - git add .
     - git commit -m '发布部署v0.1.0'
